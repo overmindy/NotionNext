@@ -92,8 +92,6 @@ export default function SideRight(props) {
               <LatestPostsGroup {...props} />
             </Card>
           )}
-
-        //{false && <Announcement post={notice} />}
         <Announcement post={notice} />
         {siteConfig('COMMENT_WALINE_SERVER_URL') &&
           siteConfig('COMMENT_WALINE_RECENT') && <HexoRecentComments />}
