@@ -1,7 +1,7 @@
 import LazyImage from '@/components/LazyImage'
 import NotionIcon from '@/components/NotionIcon'
 import { siteConfig } from '@/lib/config'
-import Link from 'next/link'
+import SmartLink from '@/components/SmartLink'
 import TagItemMini from './TagItemMini'
 
 const BlogPostCard = ({ index, post, showSummary, siteInfo }) => {
@@ -14,8 +14,8 @@ const BlogPostCard = ({ index, post, showSummary, siteInfo }) => {
   return (
     <article
       data-wow-delay='.2s'
-      className='wow fadeInUp w-full mb-4 cursor-pointer overflow-hidden shadow-movie dark:bg-hexo-black-gray'>
-      <Link href={post?.href} passHref legacyBehavior>
+      className='wow fadeInUp w-full mb-4 cursor-pointer overflow-hidden shadow-movie dark:bg-hexo-black-gray text-white'>
+      <SmartLink href={post?.href} passHref legacyBehavior>
         {/* 固定高度 ，空白用图片拉升填充 */}
         <div className='group flex flex-col aspect-[2/3] justify-between relative'>
           {/* 图片 填充卡片 */}
@@ -39,7 +39,7 @@ const BlogPostCard = ({ index, post, showSummary, siteInfo }) => {
             )}
           </div>
           {/* 阴影遮罩 */}
-          <h2 className='absolute bottom-10 px-6 transition-all duration-200 text-white text-2xl font-semibold break-words shadow-text z-20'>
+          <h2 className='absolute bottom-10 px-6 transition-all duration-200 text-2xl font-semibold break-words shadow-text z-20'>
             {siteConfig('POST_TITLE_ICON') && (
               <NotionIcon icon={post.pageIcon} />
             )}
@@ -54,7 +54,7 @@ const BlogPostCard = ({ index, post, showSummary, siteInfo }) => {
             <div className='h-full w-full absolute opacity-80 group-hover:opacity-100 transition-all duration-1000 bg-gradient-to-b from-transparent to-black'></div>
           </div>
         </div>
-      </Link>
+      </SmartLink>
     </article>
   )
 }
