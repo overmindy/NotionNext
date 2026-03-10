@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>For Xuan - Eternal Radiance</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Serif+SC:wght@300;400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+SC:wght@300;400;700&display=swap');
 
         body, html {
             margin: 0;
@@ -13,21 +13,11 @@
             width: 100%;
             height: 100%;
             background-color: #030105;
-            background: radial-gradient(circle at center, #160822 0%, #020104 100%);
+            background: radial-gradient(circle at center, #14081c 0%, #000000 100%);
             overflow: hidden;
             font-family: 'Cinzel', 'Noto Serif SC', serif;
             color: white;
             user-select: none;
-        }
-
-        /* Cinematic Noise Overlay for rich texture */
-        body::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            pointer-events: none;
-            z-index: 100;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E");
         }
 
         #canvas {
@@ -59,10 +49,9 @@
             text-align: center;
             opacity: 0;
             transform: translateY(30px) scale(0.95);
-            transition: all 2.5s cubic-bezier(0.16, 1, 0.3, 1);
-            width: 100%;
-            background: radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 70%);
-            padding: 40px 0;
+            transition: all 1.8s cubic-bezier(0.25, 1, 0.5, 1);
+            text-shadow: 0 0 25px rgba(255, 117, 140, 0.6);
+            width: 90%;
         }
 
         .text-container.active {
@@ -71,63 +60,55 @@
         }
 
         .en-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-style: italic;
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             letter-spacing: 12px;
-            color: #fff0f5;
+            color: #ffd3b6;
             margin-bottom: 15px;
-            font-weight: 300;
-            text-shadow: 0 0 15px rgba(255, 126, 179, 0.6), 0 0 30px rgba(255, 126, 179, 0.3);
+            text-transform: uppercase;
+            font-weight: 700;
         }
 
         .cn-subtitle {
-            font-family: 'Noto Serif SC', serif;
-            font-size: 1.25rem;
-            letter-spacing: 8px;
-            color: #ffb6c1;
+            font-size: 1.4rem;
+            letter-spacing: 6px;
+            color: #ff7eb3;
             font-weight: 300;
             line-height: 1.8;
-            text-shadow: 0 0 10px rgba(255, 117, 140, 0.4);
         }
 
         #start-screen {
             position: absolute;
             inset: 0;
-            background: #020104;
+            background: #000;
             z-index: 20;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            transition: opacity 2s ease, visibility 2s;
+            transition: opacity 1.5s ease;
             pointer-events: auto;
         }
 
         #start-screen h1 {
-            font-family: 'Cormorant Garamond', serif;
-            font-style: italic;
-            font-size: 3rem;
-            letter-spacing: 18px;
+            font-size: 2.5rem;
+            letter-spacing: 12px;
             color: #fff;
-            font-weight: 300;
-            margin: 0;
-            animation: breathe 3.5s ease-in-out infinite alternate;
+            animation: pulse 2s infinite alternate;
         }
 
         .hint {
-            font-family: 'Cinzel', serif;
-            font-size: 0.8rem;
-            opacity: 0.45;
-            margin-top: 30px;
-            letter-spacing: 5px;
+            font-size: 0.85rem;
+            opacity: 0.6;
+            margin-top: 25px;
+            letter-spacing: 3px;
+            font-family: sans-serif;
             text-transform: uppercase;
         }
 
-        @keyframes breathe {
-            0% { text-shadow: 0 0 15px rgba(255,126,179,0.1); transform: scale(0.98); opacity: 0.7; }
-            100% { text-shadow: 0 0 25px rgba(255,126,179,0.6), 0 0 45px rgba(255,126,179,0.3); transform: scale(1.02); opacity: 1; }
+        @keyframes pulse {
+            0% { text-shadow: 0 0 10px #ff7eb3, 0 0 20px #ff7eb3; opacity: 0.8; }
+            100% { text-shadow: 0 0 20px #ff7eb3, 0 0 40px #ff7eb3, 0 0 60px #ff7eb3; opacity: 1; }
         }
     </style>
 </head>
@@ -160,16 +141,16 @@
         let bgStars = [];
         let mouse = { x: -1000, y: -1000 };
 
-        // 剧情线优化：融入最终表白
+        // 剧情线：8幕
         const timeline = [
-            { shape: 'text', value: '萱', en: 'Serendipity', cn: '斯人若彩虹，遇上方知有', duration: 5500 },
-            { shape: 'infinity', en: 'Endless', cn: '万物皆有尽头，唯爱无边无际', duration: 5500 },
-            { shape: 'spiral', en: 'Universe', cn: '银河璀璨，你是其中最温柔的那颗星', duration: 5500 },
-            { shape: 'heart', en: 'Cherish', cn: '所有的词不达意，都是因为满心欢喜', duration: 5500 },
-            { shape: 'ring', en: 'Orbit', cn: '循迹而行，你是我唯一的引力', duration: 5500 },
-            { shape: 'spiral', en: 'Cosmic Glow', cn: '众星为尘，唯你如晖', duration: 5500 },
-            { shape: 'text', value: '恋', en: 'Soulmate', cn: '这一生，我只愿为你沉溺', duration: 5500 },
-            { shape: 'heart_large', en: 'Eternity', cn: '叶佳磊 love 刘萱', duration: 999999 } 
+            { shape: 'text', value: '萱', en: 'Serendipity', cn: '斯人若彩虹，遇上方知有', duration: 6000 },
+            { shape: 'infinity', en: 'Endless', cn: '万物皆有尽头，唯爱无边无际', duration: 6000 },
+            { shape: 'spiral', en: 'Universe', cn: '银河璀璨，你是其中最温柔的那颗星', duration: 6000 },
+            { shape: 'heart', en: 'Cherish', cn: '所有的词不达意，都是因为满心欢喜', duration: 6000 },
+            { shape: 'ring', en: 'Orbit', cn: '循迹而行，你是我唯一的引力', duration: 6000 },
+            { shape: 'spiral', en: 'Cosmic Glow', cn: '众星为尘，唯你如晖', duration: 6000 },
+            { shape: 'heart_large', en: 'Soulmate', cn: '这一生，我只愿为你沉溺', duration: 6000 },
+            { shape: 'text', value: '萱', en: 'My Dearest', cn: '岁岁平安，岁岁有你', duration: 999999 } 
         ];
 
         function resize() {
@@ -371,13 +352,11 @@
         let isWandering = true;
         function animate() {
             ctx.globalCompositeOperation = 'source-over';
-            ctx.fillStyle = 'rgba(5, 2, 8, 0.25)'; 
+            ctx.fillStyle = 'rgba(8, 2, 12, 0.22)'; 
             ctx.fillRect(0, 0, width, height);
-            
-            ctx.globalCompositeOperation = 'screen';
             bgStars.forEach(star => { star.update(); star.draw(); });
+            ctx.globalCompositeOperation = 'screen';
             particles.forEach(p => { p.update(isWandering); p.draw(); });
-            
             requestAnimationFrame(animate);
         }
 
@@ -398,7 +377,7 @@
             }
             updateParticleTargets(targetPoints);
             const oldContainer = textLayer.querySelector('.text-container');
-            if (oldContainer) { oldContainer.classList.remove('active'); setTimeout(() => oldContainer.remove(), 2000); }
+            if (oldContainer) { oldContainer.classList.remove('active'); setTimeout(() => oldContainer.remove(), 1600); }
             setTimeout(() => {
                 const newContainer = document.createElement('div');
                 newContainer.className = 'text-container';
@@ -410,14 +389,13 @@
         }
 
         function startExperience() {
-            const startScreen = document.getElementById('start-screen');
-            startScreen.style.opacity = '0';
+            document.getElementById('start-screen').style.opacity = '0';
             setTimeout(() => {
-                startScreen.style.visibility = 'hidden';
+                document.getElementById('start-screen').remove();
                 initParticles();
                 animate();
                 setTimeout(() => transitionToStage(0), 1500);
-            }, 2000);
+            }, 1000);
         }
         resize();
     </script>
