@@ -3,423 +3,733 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>For Xuan - Eternal Radiance</title>
+    <title>For Xuan - The Eternal Universe</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Serif+SC:wght@300;400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Serif+SC:wght@200;300;400;600&family=Playfair+Display:ital,wght@0,400;1,400;1,600&display=swap');
+
+        :root {
+            --color-bg-dark: #020005;
+            --color-bg-light: #16051c;
+            --color-text-main: #fff0f5;
+            --font-en-title: 'Cormorant Garamond', serif;
+            --font-en-serif: 'Playfair Display', serif;
+            --font-cn-main: 'Noto Serif SC', serif;
+            --font-en-deco: 'Cinzel', serif;
+        }
 
         body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #030105;
-            background: radial-gradient(circle at center, #160822 0%, #020104 100%);
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            background-color: var(--color-bg-dark);
+            background: radial-gradient(circle at center, var(--color-bg-light) 0%, var(--color-bg-dark) 100%);
             overflow: hidden;
-            font-family: 'Cinzel', 'Noto Serif SC', serif;
+            font-family: var(--font-en-deco), var(--font-cn-main);
             color: white;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Cinematic Noise Overlay for rich texture */
         body::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            pointer-events: none;
-            z-index: 100;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E");
+            content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 100;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            mix-blend-mode: overlay;
+        }
+        
+        .vignette {
+            position: absolute; inset: 0;
+            box-shadow: inset 0 0 250px rgba(0,0,0,0.9);
+            pointer-events: none; z-index: 90;
         }
 
-        #canvas {
+        #scene-container {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
+            inset: -5%; width: 110%; height: 110%;
+            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform-style: preserve-3d;
+            perspective: 1000px;
         }
+        #scene-container.warp-shake { animation: warpShake 0.08s infinite alternate; }
+        @keyframes warpShake {
+            0% { transform: translate(-3px, -3px) scale(1.02) rotate(-0.5deg); }
+            100% { transform: translate(3px, 3px) scale(1.02) rotate(0.5deg); }
+        }
+
+        canvas { position: absolute; top: 5%; left: 5%; width: 100%; height: 100%; }
+        #canvas-main { z-index: 1; } 
+        #canvas-fg { z-index: 2; pointer-events: none; } 
 
         .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            position: absolute; inset: 0; z-index: 20;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
             pointer-events: none;
         }
-
         .text-container {
-            position: absolute;
-            bottom: 12%;
-            text-align: center;
-            opacity: 0;
-            transform: translateY(30px) scale(0.95);
-            transition: all 2.5s cubic-bezier(0.16, 1, 0.3, 1);
-            width: 100%;
-            background: radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 70%);
-            padding: 40px 0;
+            position: absolute; bottom: 12%; text-align: center;
+            opacity: 0; transform: translateY(50px) scale(0.92);
+            transition: opacity 3s ease-in-out, transform 4s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 100%; padding: 40px 0;
+            animation: floatText 10s ease-in-out infinite;
         }
-
-        .text-container.active {
-            opacity: 1;
-            transform: translateY(0) scale(1);
+        .text-container::before {
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 180%; height: 180%;
+            background: radial-gradient(ellipse at center, rgba(15,3,25,0.7) 0%, rgba(15,3,25,0) 70%);
+            z-index: -1; filter: blur(25px);
         }
-
+        .text-container.active { opacity: 1; transform: translateY(0) scale(1); }
+        
         .en-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-style: italic;
-            font-size: 2.2rem;
-            letter-spacing: 12px;
-            color: #fff0f5;
-            margin-bottom: 15px;
-            font-weight: 300;
-            text-shadow: 0 0 15px rgba(255, 126, 179, 0.6), 0 0 30px rgba(255, 126, 179, 0.3);
+            font-family: var(--font-en-title); font-style: italic; font-size: 3rem;
+            letter-spacing: 18px; color: var(--color-text-main); margin-bottom: 25px; font-weight: 300;
+            text-shadow: 0 0 20px rgba(255, 126, 179, 0.6), 0 0 40px rgba(255, 126, 179, 0.3);
+        }
+        .cn-subtitle {
+            font-family: var(--font-cn-main); font-size: 1.2rem; letter-spacing: 10px;
+            color: rgba(255, 255, 255, 0.95); font-weight: 200; line-height: 2.2;
+            text-shadow: 0 0 15px rgba(255, 160, 190, 0.5);
         }
 
-        .cn-subtitle {
-            font-family: 'Noto Serif SC', serif;
-            font-size: 1.25rem;
-            letter-spacing: 8px;
-            color: #ffb6c1;
-            font-weight: 300;
-            line-height: 1.8;
-            text-shadow: 0 0 10px rgba(255, 117, 140, 0.4);
+        .final-reveal {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; opacity: 0; visibility: hidden;
+            transition: opacity 7s ease 2s, visibility 0s 2s; z-index: 50; pointer-events: auto;
         }
+        .final-reveal.active { opacity: 1; visibility: visible; }
+
+        .final-halo {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 90vmin; height: 90vmin;
+            background: radial-gradient(circle at center, rgba(255,105,180,0.15) 0%, rgba(255,215,0,0.06) 40%, transparent 70%);
+            z-index: -1; filter: blur(30px);
+            animation: breatheHalo 15s ease-in-out infinite alternate, heartbeat 4s ease-in-out infinite;
+            opacity: 0; transition: opacity 5s ease 4s;
+        }
+        .final-reveal.active .final-halo { opacity: 1; }
+
+        .monogram {
+            font-family: var(--font-en-serif); font-style: italic; font-size: 8rem;
+            color: transparent;
+            background: linear-gradient(135deg, #fff 0%, #ff8da1 30%, #ffd700 70%, #fff 100%);
+            -webkit-background-clip: text; background-clip: text;
+            font-weight: 300; letter-spacing: -3px; margin-bottom: 50px;
+            filter: drop-shadow(0 0 30px rgba(255,105,180,0.5));
+            animation: shimmerText 8s infinite linear; background-size: 200% auto;
+            transform: scale(0.85) translateY(20px); opacity: 0;
+            transition: all 6s cubic-bezier(0.19, 1, 0.22, 1) 3s;
+        }
+        .final-reveal.active .monogram { transform: scale(1) translateY(0); opacity: 1; }
+        .monogram span { font-size: 4rem; margin: 0 25px; vertical-align: middle; color: rgba(255,255,255,0.4); font-family: var(--font-en-deco); }
+
+        .final-vow-container { text-align: center; min-height: 140px; }
+        .final-vow {
+            font-family: var(--font-cn-main); font-size: 1.4rem; font-weight: 300;
+            letter-spacing: 12px; color: rgba(255, 255, 255, 0.95); line-height: 2.8;
+            text-shadow: 0 0 20px rgba(255,160,190,0.4);
+        }
+        .typewriter-text { display: inline-block; }
+        .cursor {
+            display: inline-block; width: 2px; height: 1.2em; background-color: rgba(255,255,255,0.9);
+            vertical-align: middle; margin-left: 8px; animation: blink 1s step-end infinite; opacity: 0;
+            box-shadow: 0 0 8px #fff;
+        }
+        .final-vow-en {
+            font-family: var(--font-en-deco); font-size: 0.9rem; letter-spacing: 8px;
+            color: #ffd700; margin-top: 35px; opacity: 0; transform: translateY(20px);
+            transition: all 4s ease 1s; text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        }
+        .final-vow-en.visible { opacity: 0.9; transform: translateY(0); }
 
         #start-screen {
-            position: absolute;
-            inset: 0;
-            background: #020104;
-            z-index: 20;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: opacity 2s ease, visibility 2s;
-            pointer-events: auto;
+            position: absolute; inset: 0; background: #020005; z-index: 120;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            cursor: pointer; transition: opacity 3s ease, visibility 3s; pointer-events: auto;
         }
-
         #start-screen h1 {
-            font-family: 'Cormorant Garamond', serif;
-            font-style: italic;
-            font-size: 3rem;
-            letter-spacing: 18px;
-            color: #fff;
-            font-weight: 300;
-            margin: 0;
-            animation: breathe 3.5s ease-in-out infinite alternate;
+            font-family: var(--font-en-title); font-style: italic; font-size: 4.5rem;
+            letter-spacing: 28px; color: #fff; font-weight: 300; margin: 0;
+            animation: breatheTitle 5s ease-in-out infinite alternate;
         }
-
         .hint {
-            font-family: 'Cinzel', serif;
-            font-size: 0.8rem;
-            opacity: 0.45;
-            margin-top: 30px;
-            letter-spacing: 5px;
-            text-transform: uppercase;
+            font-family: var(--font-en-deco); font-size: 0.85rem; color: rgba(255,255,255,0.4);
+            margin-top: 60px; letter-spacing: 10px; text-transform: uppercase;
+            display: flex; align-items: center; gap: 20px;
         }
+        .hint::before, .hint::after { content: ''; width: 50px; height: 1px; background: rgba(255,255,255,0.2); }
 
-        @keyframes breathe {
-            0% { text-shadow: 0 0 15px rgba(255,126,179,0.1); transform: scale(0.98); opacity: 0.7; }
-            100% { text-shadow: 0 0 25px rgba(255,126,179,0.6), 0 0 45px rgba(255,126,179,0.3); transform: scale(1.02); opacity: 1; }
+        #audio-ctrl {
+            position: absolute; top: 35px; right: 45px; z-index: 100;
+            color: rgba(255,255,255,0.4); font-family: var(--font-en-deco); font-size: 0.8rem;
+            letter-spacing: 4px; cursor: pointer; opacity: 0; transition: color 0.3s, opacity 2s;
         }
+        #audio-ctrl:hover { color: #ff7eb3; text-shadow: 0 0 10px #ff7eb3; }
+
+        @keyframes breatheTitle {
+            0% { text-shadow: 0 0 15px rgba(255,255,255,0.1); transform: scale(0.98); opacity: 0.7; }
+            100% { text-shadow: 0 0 40px rgba(255,126,179,0.5), 0 0 80px rgba(255,126,179,0.2); transform: scale(1.02); opacity: 1; }
+        }
+        @keyframes breatheHalo {
+            0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 0.6; }
+            100% { transform: translate(-50%, -50%) rotate(20deg); opacity: 1; }
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            15% { transform: translate(-50%, -50%) scale(1.03); }
+            30% { transform: translate(-50%, -50%) scale(1); }
+            45% { transform: translate(-50%, -50%) scale(1.06); }
+        }
+        @keyframes floatText {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        @keyframes shimmerText { to { background-position: 200% center; } }
+        @keyframes blink { 50% { opacity: 0; } }
+
     </style>
 </head>
 <body>
+    
+    <audio id="bgm" loop>
+        <source src="https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg">
+    </audio>
 
-    <canvas id="canvas"></canvas>
+    <div class="vignette"></div>
+    <div id="audio-ctrl" onclick="toggleAudio()">SOUND: ON</div>
+    
+    <div id="scene-container">
+        <canvas id="canvas-main"></canvas> 
+        <canvas id="canvas-fg"></canvas>   
+    </div>
 
     <div class="overlay" id="text-layer"></div>
-
+    
+    <div class="final-reveal" id="final-reveal">
+        <div class="final-halo"></div>
+        <div class="monogram">Y.J.L <span>&</span> L.X</div>
+        <div class="final-vow-container">
+            <div class="final-vow">
+                <span class="typewriter-text" id="tw-line1"></span><br>
+                <span class="typewriter-text" id="tw-line2"></span><span class="cursor" id="tw-cursor"></span>
+            </div>
+            <div class="final-vow-en" id="final-en">In this infinite universe, you are my final anchor.</div>
+        </div>
+    </div>
+    
     <div id="start-screen" onclick="startExperience()">
         <h1>CLICK TO START</h1>
-        <div class="hint">Interact with the stardust using your mouse</div>
+        <div class="hint">Turn on sound & touch the stars</div>
     </div>
 
     <script>
         const config = {
-            particleCount: 2200,
-            bgStarCount: 300,
-            spring: 0.045,
+            mainParticles: 1400, 
+            bgParticles: 500,    
+            fgParticles: 80,     
+            spring: 0.04,
             friction: 0.86,
-            mouseRadius: 130,
-            mouseRepelStep: 16,
-            colors: ['#ff7eb3', '#ff758c', '#ffd3b6', '#a8e6cf', '#ffffff', '#e0c3fc']
+            mouseRadius: 220,    
+            mouseRepelStep: 20,
+            colors: ['#ff7eb3', '#ff8da1', '#ffb6c1', '#ffd700', '#fce883', '#e0c3fc', '#fff'],
+            constellationDist: 65, 
+            warpSpeedActive: false
         };
 
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d', { alpha: false });
-        let width, height;
-        let particles = [];
-        let bgStars = [];
-        let mouse = { x: -1000, y: -1000 };
+        const canvasMain = document.getElementById('canvas-main'); 
+        const ctxMain = canvasMain.getContext('2d', {alpha: false}); 
+        
+        const canvasFg = document.getElementById('canvas-fg'); 
+        const ctxFg = canvasFg.getContext('2d', {alpha: true});
 
-        // 剧情线优化：融入最终表白
+        const sceneContainer = document.getElementById('scene-container');
+
+        let width, height;
+        let pMain = [], pBg = [], pFg = [], clickSparks = [];
+        let mouse = { x: -1000, y: -1000, vx: 0, vy: 0 };
+        let lastMouse = { x: -1000, y: -1000 };
+        let currentStage = '';
+        
+        let targetParallaxX = 0, targetParallaxY = 0;
+        let currentParallaxX = 0, currentParallaxY = 0;
+
+        const glowCanvas = document.createElement('canvas');
+        glowCanvas.width = 40; glowCanvas.height = 40;
+        const gCtx = glowCanvas.getContext('2d');
+        const gradient = gCtx.createRadialGradient(20, 20, 0, 20, 20, 20);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        gradient.addColorStop(0.2, 'rgba(255, 182, 193, 0.8)');
+        gradient.addColorStop(1, 'rgba(255, 182, 193, 0)');
+        gCtx.fillStyle = gradient;
+        gCtx.fillRect(0, 0, 40, 40);
+
+        const bgm = document.getElementById('bgm');
+        bgm.volume = 0;
+        let isAudioPlaying = false;
+
+        function toggleAudio() {
+            if(isAudioPlaying) { fadeAudio(0); document.getElementById('audio-ctrl').innerText = 'SOUND: OFF'; }
+            else { fadeAudio(0.5); document.getElementById('audio-ctrl').innerText = 'SOUND: ON'; bgm.play().catch(e=>{}); }
+            isAudioPlaying = !isAudioPlaying;
+        }
+
+        function fadeAudio(targetVolume) {
+            const step = targetVolume > bgm.volume ? 0.02 : -0.02;
+            const fade = setInterval(() => {
+                let newVol = bgm.volume + step;
+                if((step > 0 && newVol >= targetVolume) || (step < 0 && newVol <= targetVolume)) {
+                    bgm.volume = targetVolume; clearInterval(fade);
+                } else { bgm.volume = newVol; }
+            }, 100);
+        }
+
         const timeline = [
-            { shape: 'text', value: '萱', en: 'Serendipity', cn: '斯人若彩虹，遇上方知有', duration: 5500 },
-            { shape: 'infinity', en: 'Endless', cn: '万物皆有尽头，唯爱无边无际', duration: 5500 },
-            { shape: 'spiral', en: 'Universe', cn: '银河璀璨，你是其中最温柔的那颗星', duration: 5500 },
-            { shape: 'heart', en: 'Cherish', cn: '所有的词不达意，都是因为满心欢喜', duration: 5500 },
-            { shape: 'ring', en: 'Orbit', cn: '循迹而行，你是我唯一的引力', duration: 5500 },
-            { shape: 'spiral', en: 'Cosmic Glow', cn: '众星为尘，唯你如晖', duration: 5500 },
-            { shape: 'text', value: '恋', en: 'Soulmate', cn: '这一生，我只愿为你沉溺', duration: 5500 },
-            { shape: 'heart_large', en: 'Eternity', cn: '叶佳磊 love 刘萱', duration: 999999 } 
+            { shape: 'text', value: '萱', en: 'Serendipity', cn: '斯人若彩虹，遇上方知有', duration: 8000 },
+            { shape: 'constellation', en: 'Resonance', cn: '在这拥挤的星河里，我们的轨迹开始交织', duration: 8500 },
+            { shape: 'clock', en: 'Time', cn: '时间的刻度里，每一秒都在为你偏航', duration: 8500 },
+            { shape: 'infinity', en: 'Endless', cn: '万物皆有尽头，唯爱无边无际', duration: 8000 },
+            { shape: 'rose', en: 'Blossom', cn: '如果宇宙是一片荒原，我想为你种下一朵不灭的星云', duration: 9000 },
+            { shape: 'dna', en: 'Origin', cn: '爱是刻在基因里的本能，也是超越物理的奇迹', duration: 8500 },
+            { shape: 'warp', en: 'Warp Speed', cn: '跨越光年，关于未来的千百种想象，每一个都有你', duration: 9500 },
+            { shape: 'galaxy', en: 'Universe', cn: '众星为尘，唯你如晖', duration: 9000 },
+            { shape: 'text', value: '恋', en: 'Soulmate', cn: '这一生，我只愿为你沉溺', duration: 8000 },
+            { shape: 'final', en: '', cn: '', duration: 999999 } 
         ];
 
         function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
+            width = window.innerWidth; height = window.innerHeight;
+            [canvasMain, canvasFg].forEach(c => {
+                c.width = width; c.height = height;
+                c.style.left = `calc(5% - ${width*0.05}px)`;
+                c.style.top = `calc(5% - ${height*0.05}px)`;
+            });
         }
-        window.addEventListener('resize', resize);
-        resize();
+        window.addEventListener('resize', resize); resize();
 
-        window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
-        window.addEventListener('touchmove', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; });
-        window.addEventListener('mouseout', () => { mouse.x = -1000; mouse.y = -1000; });
-        window.addEventListener('touchend', () => { mouse.x = -1000; mouse.y = -1000; });
+        function handleMove(clientX, clientY) {
+            lastMouse.x = mouse.x; lastMouse.y = mouse.y;
+            mouse.x = clientX; mouse.y = clientY; 
+            mouse.vx = mouse.x - lastMouse.x; mouse.vy = mouse.y - lastMouse.y;
+            targetParallaxX = (clientX / width - 0.5) * 2;
+            targetParallaxY = (clientY / height - 0.5) * 2;
+        }
 
-        class BgStar {
-            constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.size = Math.random() * 1.2;
-                this.speed = Math.random() * 0.15 + 0.05;
-                this.opacity = Math.random();
-                this.fadeSpeed = (Math.random() - 0.5) * 0.01;
+        window.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
+        window.addEventListener('touchmove', e => handleMove(e.touches[0].clientX, e.touches[0].clientY));
+        window.addEventListener('mouseout', () => { mouse.x = -1000; mouse.y = -1000; targetParallaxX = 0; targetParallaxY = 0; });
+        window.addEventListener('touchend', () => { mouse.x = -1000; mouse.y = -1000; targetParallaxX = 0; targetParallaxY = 0; });
+
+        function createSparks(x, y) {
+            if (config.warpSpeedActive || currentStage === 'final') return;
+            const sparkCount = Math.floor(Math.random() * 15 + 20); 
+            for(let i=0; i<sparkCount; i++) clickSparks.push(new Spark(x, y));
+        }
+        window.addEventListener('mousedown', e => createSparks(e.clientX, e.clientY));
+        window.addEventListener('touchstart', e => createSparks(e.touches[0].clientX, e.touches[0].clientY));
+
+        class Spark {
+            constructor(x, y) {
+                this.x = x; this.y = y;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 8 + 4;
+                this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed;
+                this.life = 1.0; this.decay = Math.random() * 0.025 + 0.02;
+                this.color = config.colors[Math.floor(Math.random() * 4)];
+                this.size = Math.random() * 2.5 + 1;
             }
             update() {
-                this.y -= this.speed;
-                if (this.y < 0) this.y = height;
-                this.opacity += this.fadeSpeed;
-                if (this.opacity > 1 || this.opacity < 0.1) this.fadeSpeed *= -1;
+                this.x += this.vx; this.y += this.vy;
+                this.vx *= 0.92; this.vy *= 0.92; this.vy += 0.15;
+                this.life -= this.decay;
             }
-            draw() {
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+            draw(ctx) {
+                if(this.life <= 0) return;
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size * 2, 0, Math.PI*2); ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fillStyle = this.color; ctx.fill();
+                ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(this.x - this.vx*1.5, this.y - this.vy*1.5);
+                ctx.strokeStyle = this.color; ctx.lineWidth = this.size*0.5; ctx.stroke();
+                ctx.globalAlpha = 1;
             }
         }
 
-        class Particle {
-            constructor() {
+        class BackgroundStar {
+            constructor() { this.reset(true); }
+            reset(randomY = false) {
                 this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 12;
-                this.vy = (Math.random() - 0.5) * 12;
-                this.baseX = this.x;
-                this.baseY = this.y;
-                this.size = Math.random() * 2 + 0.8;
+                this.y = randomY ? Math.random() * height : (config.warpSpeedActive ? height + 10 : Math.random() * height);
+                this.z = Math.random() * 0.5 + 0.1; 
+                this.baseSize = Math.random() * 1.5 + 0.5; 
+                this.baseSpeed = (Math.random() * 0.1 + 0.02) / this.z;
+                this.speed = this.baseSpeed;
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                if (config.warpSpeedActive) {
+                    this.speed = this.baseSpeed * 150; this.y -= this.speed;
+                    if (this.y < -100) this.reset();
+                } else {
+                    this.speed = this.baseSpeed; this.y -= this.speed;
+                    this.x -= (currentParallaxX - targetParallaxX) * (1/this.z) * 0.5;
+                    this.y -= (currentParallaxY - targetParallaxY) * (1/this.z) * 0.5;
+                    if (this.y < 0) { this.y = height + 10; this.x = Math.random() * width; }
+                    if (this.x < 0) this.x = width; if (this.x > width) this.x = 0;
+                }
+            }
+            draw(ctx) {
+                ctx.fillStyle = config.warpSpeedActive ? `rgba(255, 230, 240, ${this.opacity * 0.8})` : `rgba(255, 240, 245, ${this.opacity})`;
+                if (config.warpSpeedActive) {
+                    ctx.fillRect(this.x, this.y, 2, this.baseSize * 40);
+                } else {
+                    ctx.beginPath(); ctx.arc(this.x, this.y, this.baseSize, 0, Math.PI * 2); ctx.fill();
+                }
+            }
+        }
+
+        class MainParticle {
+            constructor(layer) {
+                this.layer = layer;
+                this.x = Math.random() * width; this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 15; this.vy = (Math.random() - 0.5) * 15;
+                this.baseX = this.x; this.baseY = this.y;
+                if(layer === 'fg') {
+                    this.size = Math.random() * 5 + 4;
+                    this.z = Math.random() * 1.5 + 1.2;
+                    this.alpha = Math.random() * 0.25 + 0.1;
+                } else {
+                    this.size = Math.random() * 2.5 + 1.2; 
+                    this.z = 1.0;
+                    this.alpha = 1.0;
+                }
                 this.baseSize = this.size;
                 this.color = config.colors[Math.floor(Math.random() * config.colors.length)];
                 this.wanderThrust = Math.random() * 0.8;
                 this.angle = Math.random() * Math.PI * 2;
-                this.isSparkle = Math.random() < 0.12;
-                this.sparklePhase = Math.random() * Math.PI * 2;
+                this.isSparkle = layer === 'main' ? (Math.random() < 0.15) : false; 
+                this.phase = Math.random() * Math.PI * 2;
+                this.orbitRadius = Math.random() * 40 + 10;
             }
-
-            explode() {
+            explode(strength = 1) {
                 const angle = Math.random() * Math.PI * 2;
-                const force = Math.random() * 50 + 15;
-                this.vx += Math.cos(angle) * force;
-                this.vy += Math.sin(angle) * force;
+                const force = (Math.random() * 120 + 40) * strength;
+                this.vx += Math.cos(angle) * force; this.vy += Math.sin(angle) * force;
             }
-
             update(isWandering) {
-                if (isWandering) {
-                    this.angle += (Math.random() - 0.5) * 0.3;
+                if (isWandering || currentStage === 'constellation') {
+                    this.angle += (Math.random() - 0.5) * 0.2;
                     this.vx += Math.cos(this.angle) * this.wanderThrust * 0.15;
                     this.vy += Math.sin(this.angle) * this.wanderThrust * 0.15;
-                    this.vx *= 0.95;
-                    this.vy *= 0.95;
-                    this.x += this.vx;
-                    this.y += this.vy;
-                    if (this.x < 0 || this.x > width) this.vx *= -1;
-                    if (this.y < 0 || this.y > height) this.vy *= -1;
+                    if (currentStage === 'constellation') {
+                        let dx = (width/2) - this.x; let dy = (height/2) - this.y;
+                        this.vx += dx * 0.0002; this.vy += dy * 0.0002;
+                    }
+                    this.vx *= 0.94; this.vy *= 0.94;
+                    this.x += this.vx; this.y += this.vy;
+                    if (this.x < -100) this.x = width + 100; if (this.x > width + 100) this.x = -100;
+                    if (this.y < -100) this.y = height + 100; if (this.y > height + 100) this.y = -100;
+                } else if (config.warpSpeedActive) {
+                    let dx = this.x - width/2; let dy = this.y - height/2;
+                    let dist = Math.sqrt(dx*dx + dy*dy) || 1;
+                    this.vx += (dx / dist) * 4; this.vy += (dy / dist) * 4;
+                    this.vx *= 1.09; this.vy *= 1.09;
+                    this.x += this.vx; this.y += this.vy;
+                    if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
+                        const angle = Math.random() * Math.PI * 2; const r = Math.random() * 30;
+                        this.x = width/2 + Math.cos(angle)*r; this.y = height/2 + Math.sin(angle)*r;
+                        this.vx = 0; this.vy = 0;
+                        this.color = ['#fff', '#ffd700', '#ffb6c1'][Math.floor(Math.random()*3)];
+                    }
                 } else {
-                    let dx = this.baseX - this.x;
-                    let dy = this.baseY - this.y;
-                    this.vx += dx * config.spring;
-                    this.vy += dy * config.spring;
+                    let targetX = this.baseX; let targetY = this.baseY;
+                    if (currentStage === 'galaxy') {
+                        this.phase += 0.01; targetX += Math.cos(this.phase) * this.orbitRadius; targetY += Math.sin(this.phase) * this.orbitRadius;
+                    } else if (currentStage === 'dna') {
+                        this.phase += 0.015; targetY += Math.sin(this.baseX * 0.01 + this.phase) * 20;
+                    } else if (currentStage === 'clock') {
+                        this.phase -= 0.002; let dx = this.baseX - width/2; let dy = this.baseY - height/2;
+                        let dist = Math.sqrt(dx*dx + dy*dy); let baseAngle = Math.atan2(dy, dx);
+                        targetX = width/2 + Math.cos(baseAngle + this.phase) * dist; targetY = height/2 + Math.sin(baseAngle + this.phase) * dist;
+                    }
+                    let dx = targetX - this.x; let dy = targetY - this.y;
+                    this.vx += dx * config.spring; this.vy += dy * config.spring;
+                    this.vx *= config.friction; this.vy *= config.friction;
+                    this.x += this.vx; this.y += this.vy;
                 }
-
-                let mouseDx = this.x - mouse.x;
-                let mouseDy = this.y - mouse.y;
-                let mouseDist = Math.sqrt(mouseDx * mouseDx + mouseDy * mouseDy);
-
-                if (mouseDist < config.mouseRadius) {
-                    let force = (config.mouseRadius - mouseDist) / config.mouseRadius;
-                    this.vx += (mouseDx / mouseDist) * force * config.mouseRepelStep + (mouseDy / mouseDist) * force * 5;
-                    this.vy += (mouseDy / mouseDist) * force * config.mouseRepelStep - (mouseDx / mouseDist) * force * 5;
+                if (!config.warpSpeedActive && currentStage !== 'final' && this.layer === 'main') {
+                    let mouseDx = this.x - mouse.x; let mouseDy = this.y - mouse.y;
+                    let mouseDist = Math.sqrt(mouseDx * mouseDx + mouseDy * mouseDy);
+                    if (mouseDist < config.mouseRadius) {
+                        let force = (config.mouseRadius - mouseDist) / config.mouseRadius;
+                        this.vx += (mouseDx / mouseDist) * force * config.mouseRepelStep;
+                        this.vy += (mouseDy / mouseDist) * force * config.mouseRepelStep;
+                        this.vx += (mouseDy / mouseDist) * force * 5; this.vy -= (mouseDx / mouseDist) * force * 5;
+                    }
                 }
-
-                if (!isWandering) {
-                    this.vx *= config.friction;
-                    this.vy *= config.friction;
-                    this.x += this.vx;
-                    this.y += this.vy;
-                }
-
-                if (this.isSparkle) {
-                    this.sparklePhase += 0.06;
-                    this.size = this.baseSize + Math.sin(this.sparklePhase) * 1.5;
+                if (this.isSparkle && !config.warpSpeedActive) {
+                    this.phase += 0.08; this.size = this.baseSize + Math.sin(this.phase) * 2;
                 }
             }
+            draw(ctxTarget) {
+                let drawX = this.x + currentParallaxX * 50 * this.z;
+                let drawY = this.y + currentParallaxY * 50 * this.z;
+                
+                let renderSize = this.size;
+                if (currentStage === 'text' && this.layer === 'main') {
+                    renderSize = this.baseSize * 0.3; // Make text dots tiny, rely on lines
+                }
 
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, Math.max(0.1, this.size), 0, Math.PI * 2);
-                ctx.fill();
+                if(this.layer === 'fg') {
+                    ctxTarget.globalAlpha = this.alpha; ctxTarget.fillStyle = this.color;
+                    ctxTarget.beginPath(); ctxTarget.arc(drawX, drawY, renderSize * 2, 0, Math.PI * 2); ctxTarget.fill();
+                    ctxTarget.beginPath(); ctxTarget.arc(drawX, drawY, renderSize * 1.5, 0, Math.PI * 2); ctxTarget.fill();
+                    ctxTarget.globalAlpha = 1;
+                } else {
+                    ctxTarget.fillStyle = this.color;
+                    if(this.isSparkle && this.size > this.baseSize * 1.2 && !config.warpSpeedActive && currentStage !== 'text') {
+                        let glowSize = this.size * 6;
+                        ctxTarget.drawImage(glowCanvas, drawX - glowSize/2, drawY - glowSize/2, glowSize, glowSize);
+                    }
+                    ctxTarget.beginPath();
+                    if (config.warpSpeedActive) {
+                        let speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+                        let length = Math.min(speed * 2, 150);
+                        let normX = this.vx / speed || 0; let normY = this.vy / speed || 0;
+                        ctxTarget.strokeStyle = this.color; ctxTarget.lineWidth = renderSize;
+                        ctxTarget.lineCap = 'round'; ctxTarget.moveTo(drawX, drawY); ctxTarget.lineTo(drawX - normX * length, drawY - normY * length); ctxTarget.stroke();
+                    } else {
+                        // Apply slight transparency for text dots to look cleaner
+                        if (currentStage === 'text') ctxTarget.globalAlpha = 0.5;
+                        ctxTarget.arc(drawX, drawY, Math.max(0.1, renderSize), 0, Math.PI * 2); ctxTarget.fill();
+                        if (currentStage === 'text') ctxTarget.globalAlpha = 1.0;
+                    }
+                }
             }
         }
 
         function initParticles() {
-            particles = [];
-            bgStars = [];
-            for (let i = 0; i < config.particleCount; i++) particles.push(new Particle());
-            for (let i = 0; i < config.bgStarCount; i++) bgStars.push(new BgStar());
+            pBg = []; pMain = []; pFg = []; clickSparks = [];
+            for (let i = 0; i < config.bgParticles; i++) pBg.push(new BackgroundStar());
+            for (let i = 0; i < config.mainParticles; i++) pMain.push(new MainParticle('main'));
+            for (let i = 0; i < config.fgParticles; i++) pFg.push(new MainParticle('fg'));
         }
 
         function getTextPoints(text) {
-            const offCanvas = document.createElement('canvas');
-            const offCtx = offCanvas.getContext('2d');
-            offCanvas.width = width;
-            offCanvas.height = height;
-            let fontSize = Math.min(width * 0.45, 320);
+            const offCanvas = document.createElement('canvas'); const offCtx = offCanvas.getContext('2d');
+            offCanvas.width = width; offCanvas.height = height;
+            let fontSize = Math.min(width * 0.45, 400);
             offCtx.font = `bold ${fontSize}px "Noto Serif SC", serif`;
-            offCtx.textAlign = 'center';
-            offCtx.textBaseline = 'middle';
-            offCtx.fillStyle = 'white';
-            offCtx.fillText(text, width / 2, height / 2 - 80); 
-            const imgData = offCtx.getImageData(0, 0, width, height).data;
-            const points = [];
-            const step = Math.ceil(width / 180); 
+            offCtx.textAlign = 'center'; offCtx.textBaseline = 'middle';       
+            offCtx.fillStyle = 'white'; 
+            // Add slight shadow blur to the text draw to create softer, feather-like edges for extraction
+            offCtx.shadowColor = 'white';
+            offCtx.shadowBlur = 10;
+            offCtx.fillText(text, width / 2, height / 2 - 80);
+
+            const imgData = offCtx.getImageData(0, 0, width, height).data;     
+            const points = []; const step = Math.ceil(width / 220); // Denser extraction for lines
             for (let y = 0; y < height; y += step) {
-                for (let x = 0; x < width; x += step) {
-                    if (imgData[(y * width + x) * 4 + 3] > 128) points.push({ x, y });
+                for (let x = 0; x < width; x += step) { 
+                    // Lower alpha threshold to catch the soft edges of the shadowBlur
+                    if (imgData[(y * width + x) * 4 + 3] > 60) {
+                        // Add slight jitter for more organic "stardust" ink feel
+                        points.push({ x: x + (Math.random()-0.5)*4, y: y + (Math.random()-0.5)*4 }); 
+                    }
                 }
+            }
+            return points;
+        }
+        function getClockPoints() {
+            const points = []; const centerX = width / 2; const centerY = height / 2 - 60;
+            const radiusOuter = Math.min(width, height) * 0.38; const radiusInner = radiusOuter * 0.9;
+            for(let i=0; i<300; i++) {
+                let a = Math.random() * Math.PI * 2; let r = radiusOuter + (Math.random()-0.5)*10;
+                points.push({x: centerX + Math.cos(a)*r, y: centerY + Math.sin(a)*r});
+            }
+            for(let h=0; h<12; h++) {
+                let a = (Math.PI*2 / 12) * h;
+                for(let d=0; d<20; d++) { let r = radiusOuter - d*3; points.push({x: centerX + Math.cos(a)*r + (Math.random()-0.5)*5, y: centerY + Math.sin(a)*r + (Math.random()-0.5)*5}); }
+            }
+            let a1 = -Math.PI/2; let a2 = Math.PI/4; 
+            for(let r=0; r<radiusOuter*0.7; r+=4) { points.push({x: centerX + Math.cos(a1)*r + (Math.random()-0.5)*5, y: centerY + Math.sin(a1)*r + (Math.random()-0.5)*5}); }
+            for(let r=0; r<radiusOuter*0.5; r+=4) { points.push({x: centerX + Math.cos(a2)*r + (Math.random()-0.5)*5, y: centerY + Math.sin(a2)*r + (Math.random()-0.5)*5}); }
+            let remaining = config.mainParticles - points.length;
+            for(let i=0; i<remaining; i++) { let a = Math.random() * Math.PI*2; let r = Math.random() * radiusInner; points.push({x: centerX + Math.cos(a)*r, y: centerY + Math.sin(a)*r}); }
+            return points;
+        }
+
+        function getRosePoints() {
+            const points = []; const centerX = width / 2; const centerY = height / 2 - 40;
+            const goldenAngle = 137.508 * (Math.PI / 180); const scale = Math.min(width, height) * 0.02; 
+            for (let i = 0; i < config.mainParticles; i++) {
+                let r = scale * Math.sqrt(i); let a = i * goldenAngle;
+                let petalPhase = a * 5; let distortion = 1 + Math.sin(petalPhase) * 0.2; r *= distortion;
+                let x = centerX + Math.cos(a) * r; let y = centerY + Math.sin(a) * r * 0.7;
+                x += (Math.random()-0.5) * (r * 0.05 + 5); y += (Math.random()-0.5) * (r * 0.05 + 5); points.push({ x, y });
             }
             return points;
         }
 
         function getInfinityPoints(scaleFactor) {
-            const points = [];
-            const centerX = width / 2;
-            const centerY = height / 2 - 60;
+            const points = []; const centerX = width / 2; const centerY = height / 2 - 60;
             const scale = Math.min(width, height) / scaleFactor;
             for (let t = 0; t < Math.PI * 2; t += 0.015) {
-                const denominator = 1 + Math.pow(Math.sin(t), 2);
-                const x = (scale * Math.cos(t)) / denominator;
-                const y = (scale * Math.sin(t) * Math.cos(t)) / denominator;
-                for(let i=0; i<6; i++) points.push({ x: centerX + x + (Math.random()-0.5)*20, y: centerY + y + (Math.random()-0.5)*20 });
+                const den = 1 + Math.pow(Math.sin(t), 2);
+                const x = (scale * Math.cos(t)) / den; const y = (scale * Math.sin(t) * Math.cos(t)) / den;
+                for(let i=0; i<10; i++) { const r = Math.random() * 30; const a = Math.random() * Math.PI * 2; points.push({ x: centerX + x + Math.cos(a)*r, y: centerY + y + Math.sin(a)*r }); }
             }
             return points;
         }
 
-        function getSpiralPoints() {
-            const points = [];
-            const centerX = width / 2, centerY = height / 2 - 60, arms = 3;
-            for(let arm = 0; arm < arms; arm++) {
-                const angleOffset = (Math.PI * 2 / arms) * arm;
-                for(let i = 0; i < 400; i++) {
-                    const t = i * 0.04, r = t * 18;
-                    const x = r * Math.cos(t + angleOffset), y = r * Math.sin(t + angleOffset) * 0.6;
-                    for(let j=0; j<2; j++) points.push({ x: centerX + x + (Math.random()-0.5) * t * 2.5, y: centerY + y + (Math.random()-0.5) * t * 2.5 });
+        function getDnaPoints() {
+            const points = []; const centerX = width / 2; const centerY = height / 2 - 60;
+            const length = Math.min(width * 0.8, 1200); const amplitude = Math.min(height * 0.25, 220);
+            const frequency = 0.012;
+            for (let i = 0; i < config.mainParticles; i++) {
+                const type = Math.random(); const xPos = (Math.random() - 0.5) * length; const x = centerX + xPos;
+                let y;
+                if (type < 0.4) { y = centerY + Math.sin(xPos * frequency) * amplitude + (Math.random()-0.5)*20; } 
+                else if (type < 0.8) { y = centerY + Math.sin(xPos * frequency + Math.PI) * amplitude + (Math.random()-0.5)*20; } 
+                else {
+                    const step = 60; const bridgeXPos = Math.round(xPos / step) * step; const bX = centerX + bridgeXPos;
+                    const y1 = centerY + Math.sin(bridgeXPos * frequency) * amplitude; const y2 = centerY + Math.sin(bridgeXPos * frequency + Math.PI) * amplitude;
+                    y = y1 + (y2 - y1) * Math.random() + (Math.random()-0.5)*8;
+                    points.push({ x: bX + (Math.random()-0.5)*15, y: y }); continue;
                 }
+                points.push({ x, y });
             }
             return points;
         }
 
-        function getHeartPoints(scaleFactor) {
-            const points = [];
-            const centerX = width / 2, centerY = height / 2 - 60;
-            const scale = Math.min(width, height) / scaleFactor;
-            for (let t = 0; t < Math.PI * 2; t += 0.04) {
-                const x = 16 * Math.pow(Math.sin(t), 3), y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-                for (let i = 0; i < 18; i++) points.push({ x: centerX + x * scale + (Math.random() - 0.5) * 15, y: centerY + y * scale + (Math.random() - 0.5) * 15 });
-            }
-            return points;
-        }
-
-        function getRingPoints() {
-            const points = [];
-            const centerX = width / 2, centerY = height / 2 - 60, radius = Math.min(width, height) * 0.32;
-            for (let i = 0; i < 1200; i++) {
-                const angle = Math.random() * Math.PI * 2, r = radius + (Math.random() - 0.5) * 100;
-                points.push({ x: centerX + Math.cos(angle) * r, y: centerY + Math.sin(angle) * r * 0.35 });
+        function getGalaxyPoints() {
+            const points = []; const centerX = width / 2; const centerY = height / 2 - 40;
+            const arms = 5; const maxRadius = Math.min(width, height) * 0.55;
+            for (let i = 0; i < config.mainParticles; i++) {
+                const arm = Math.floor(Math.random() * arms); const angleOffset = (Math.PI * 2 / arms) * arm;
+                const r = Math.pow(Math.random(), 2.2) * maxRadius; const twist = r * 0.025; const angle = angleOffset + twist + (Math.random() - 0.5) * 0.8;
+                const x = r * Math.cos(angle); const y = r * Math.sin(angle) * 0.45; points.push({ x: centerX + x, y: centerY + y });
             }
             return points;
         }
 
         function updateParticleTargets(points) {
-            points.sort(() => Math.random() - 0.5);
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-                const target = points[i % points.length];
-                p.baseX = target.x + (i >= points.length ? (Math.random()-0.5)*15 : 0);
-                p.baseY = target.y + (i >= points.length ? (Math.random()-0.5)*15 : 0);
+            if (!points || points.length === 0) return;
+            const shuffledPoints = [...points].sort(() => Math.random() - 0.5);
+            for (let i = 0; i < pMain.length; i++) { const target = shuffledPoints[i % shuffledPoints.length]; pMain[i].baseX = target.x; pMain[i].baseY = target.y; }
+        }
+
+        function drawConstellationLines() {
+            if (currentStage !== 'constellation' && currentStage !== 'dna' && currentStage !== 'text') return;
+
+            ctxMain.lineWidth = currentStage === 'text' ? 0.3 : 0.5;
+            let maxDist = config.constellationDist;
+            if (currentStage === 'dna') maxDist = 40;
+            if (currentStage === 'text') maxDist = 22; // very dense connections for text only
+
+            let step1 = currentStage === 'text' ? 2 : 8;
+            let step2 = currentStage === 'text' ? 3 : 9;
+
+            for (let i = 0; i < pMain.length; i+=step1) {
+                const p1 = pMain[i]; let x1 = p1.x + currentParallaxX * 50 * p1.z; let y1 = p1.y + currentParallaxY * 50 * p1.z;
+                for (let j = i + 1; j < pMain.length; j+=step2) {
+                    const p2 = pMain[j]; let x2 = p2.x + currentParallaxX * 50 * p2.z; let y2 = p2.y + currentParallaxY * 50 * p2.z;
+                    const dx = x1 - x2; const dy = y1 - y2; const distSq = dx * dx + dy * dy;
+                    if (distSq < maxDist * maxDist) { 
+                        const opacity = 1 - Math.sqrt(distSq) / maxDist; 
+                        if (currentStage === 'text') {
+                            ctxMain.strokeStyle = `rgba(255, 230, 240, ${opacity * 0.7})`; // Silver/Pink thread for text
+                        } else {
+                            ctxMain.strokeStyle = `rgba(255, 182, 193, ${opacity * 0.4})`; 
+                        }
+                        ctxMain.beginPath(); ctxMain.moveTo(x1, y1); ctxMain.lineTo(x2, y2); ctxMain.stroke(); 
+                    }
+                }
+            }
+        }
+        let auroraTrails = [];
+        function drawAurora() {
+            if (currentStage !== 'final') return;
+            if (mouse.x > 0 && (Math.abs(mouse.vx) > 1 || Math.abs(mouse.vy) > 1)) { if(Math.random() > 0.3) auroraTrails.push({ x: mouse.x, y: mouse.y, age: 0, maxAge: 100 + Math.random()*50, size: Math.random()*80 + 40 }); }
+            for (let i = auroraTrails.length - 1; i >= 0; i--) {
+                let p = auroraTrails[i]; p.age++; p.y -= 1; p.x += Math.sin(p.age * 0.04) * 3;
+                if (p.age > p.maxAge) { auroraTrails.splice(i, 1); continue; }
+                const opacity = (1 - p.age / p.maxAge) * 0.15;
+                const grad = ctxFg.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+                grad.addColorStop(0, `rgba(255, 141, 161, ${opacity})`); grad.addColorStop(0.5, `rgba(255, 215, 0, ${opacity * 0.5})`); grad.addColorStop(1, 'rgba(0,0,0,0)');
+                ctxFg.fillStyle = grad; ctxFg.beginPath(); ctxFg.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctxFg.fill();
             }
         }
 
         let isWandering = true;
         function animate() {
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.fillStyle = 'rgba(5, 2, 8, 0.25)'; 
-            ctx.fillRect(0, 0, width, height);
-            
-            ctx.globalCompositeOperation = 'screen';
-            bgStars.forEach(star => { star.update(); star.draw(); });
-            particles.forEach(p => { p.update(isWandering); p.draw(); });
-            
+            currentParallaxX += (targetParallaxX - currentParallaxX) * 0.05;
+            currentParallaxY += (targetParallaxY - currentParallaxY) * 0.05;
+            ctxMain.globalCompositeOperation = 'source-over';
+            if (config.warpSpeedActive) { ctxMain.fillStyle = 'rgba(2, 0, 5, 0.4)'; ctxMain.fillRect(0, 0, width, height); } 
+            else { ctxMain.fillStyle = '#020005'; ctxMain.fillRect(0, 0, width, height); }
+            ctxMain.globalCompositeOperation = 'screen';
+            pBg.forEach(p => { p.update(); p.draw(ctxMain); });
+            drawConstellationLines();
+            pMain.forEach(p => { p.update(isWandering); p.draw(ctxMain); });
+            ctxFg.clearRect(0, 0, width, height); ctxFg.globalCompositeOperation = 'screen';
+            pFg.forEach(p => { p.update(isWandering); p.draw(ctxFg); });
+            for(let i = clickSparks.length -1; i>=0; i--){ clickSparks[i].update(); clickSparks[i].draw(ctxFg); if(clickSparks[i].life <= 0) clickSparks.splice(i, 1); }
+            drawAurora();
             requestAnimationFrame(animate);
         }
 
         const textLayer = document.getElementById('text-layer');
+        const finalRevealLayer = document.getElementById('final-reveal');
+        const line1Text = "宇宙无垠，而你是我最终的锚点。"; const line2Text = "余生浩瀚，愿与你共享每一场星辉。";
+        let twIndex1 = 0; let twIndex2 = 0;
+        
+        function typeWriter() {
+            const el1 = document.getElementById('tw-line1'); const el2 = document.getElementById('tw-line2'); const cursor = document.getElementById('tw-cursor');
+            if (twIndex1 < line1Text.length) { el1.innerHTML += line1Text.charAt(twIndex1); twIndex1++; setTimeout(typeWriter, 150 + Math.random()*100); } 
+            else if (twIndex1 === line1Text.length && twIndex2 === 0) { twIndex1++; setTimeout(typeWriter, 1000); } 
+            else if (twIndex2 < line2Text.length) { el2.innerHTML += line2Text.charAt(twIndex2); twIndex2++; setTimeout(typeWriter, 150 + Math.random()*100); } 
+            else { cursor.style.animation = 'none'; cursor.style.opacity = '1'; setTimeout(() => { document.getElementById('final-en').classList.add('visible'); }, 1500); }
+        }
+
         function transitionToStage(index) {
             if (index >= timeline.length) return;
-            const stage = timeline[index];
-            isWandering = false;
-            if (index > 0) particles.forEach(p => p.explode());
+            const stage = timeline[index]; currentStage = stage.shape; isWandering = false;
+            const wasWarp = config.warpSpeedActive; config.warpSpeedActive = (stage.shape === 'warp');
+            if (config.warpSpeedActive) sceneContainer.classList.add('warp-shake'); else sceneContainer.classList.remove('warp-shake');
+            if (index > 0 && stage.shape !== 'warp' && stage.shape !== 'final' && !wasWarp) {
+                let strength = 1; if(stage.shape === 'rose') strength = 1.5; if(stage.shape === 'galaxy') strength = 1.2;
+                pMain.forEach(p => p.explode(strength)); pFg.forEach(p => p.explode(strength * 1.5)); 
+            }
             let targetPoints = [];
             switch(stage.shape) {
                 case 'text': targetPoints = getTextPoints(stage.value); break;
-                case 'infinity': targetPoints = getInfinityPoints(2.5); break;
-                case 'spiral': targetPoints = getSpiralPoints(); break;
-                case 'heart': targetPoints = getHeartPoints(60); break;
-                case 'ring': targetPoints = getRingPoints(); break;
-                case 'heart_large': targetPoints = getHeartPoints(45); break;
+                case 'clock': targetPoints = getClockPoints(); break;
+                case 'rose': targetPoints = getRosePoints(); break;
+                case 'infinity': targetPoints = getInfinityPoints(2.2); break;
+                case 'dna': targetPoints = getDnaPoints(); break;
+                case 'galaxy': targetPoints = getGalaxyPoints(); break;
+                case 'constellation': isWandering = true; break; 
+                case 'final':
+                    [...pMain, ...pFg].forEach(p => { p.baseX = width / 2 + (Math.random()-0.5)*width*2.5; p.baseY = height + 500 + Math.random()*800; config.friction = 0.985; config.spring = 0.003; });
+                    finalRevealLayer.classList.add('active'); const oldC = textLayer.querySelector('.text-container'); if (oldC) { oldC.classList.remove('active'); setTimeout(() => oldC.remove(), 2000); }
+                    setTimeout(typeWriter, 5500); return;
             }
-            updateParticleTargets(targetPoints);
-            const oldContainer = textLayer.querySelector('.text-container');
-            if (oldContainer) { oldContainer.classList.remove('active'); setTimeout(() => oldContainer.remove(), 2000); }
-            setTimeout(() => {
-                const newContainer = document.createElement('div');
-                newContainer.className = 'text-container';
-                newContainer.innerHTML = `<div class="en-title">${stage.en}</div><div class="cn-subtitle">${stage.cn}</div>`;
-                textLayer.appendChild(newContainer);
-                requestAnimationFrame(() => newContainer.classList.add('active'));
-            }, 1000); 
+            if (targetPoints.length > 0) updateParticleTargets(targetPoints);
+            const oldC = textLayer.querySelector('.text-container'); if (oldC) { oldC.classList.remove('active'); setTimeout(() => oldC.remove(), 2000); }
+            if (stage.en || stage.cn) {
+                setTimeout(() => {
+                    const nC = document.createElement('div'); nC.className = 'text-container';
+                    nC.innerHTML = `<div class="en-title">${stage.en}</div><div class="cn-subtitle">${stage.cn}</div>`;
+                    textLayer.appendChild(nC); requestAnimationFrame(() => { requestAnimationFrame(() => nC.classList.add('active')); });
+                }, 1200); 
+            }
             if (stage.duration !== 999999) setTimeout(() => transitionToStage(index + 1), stage.duration);
         }
 
         function startExperience() {
-            const startScreen = document.getElementById('start-screen');
-            startScreen.style.opacity = '0';
-            setTimeout(() => {
-                startScreen.style.visibility = 'hidden';
-                initParticles();
-                animate();
-                setTimeout(() => transitionToStage(0), 1500);
-            }, 2000);
+            document.getElementById('audio-ctrl').style.opacity = '1';
+            if(!isAudioPlaying) toggleAudio(); 
+            const startScreen = document.getElementById('start-screen'); startScreen.style.opacity = '0';
+            setTimeout(() => { startScreen.style.visibility = 'hidden'; initParticles(); animate(); setTimeout(() => transitionToStage(0), 1500); }, 3000);
         }
-        resize();
     </script>
 </body>
 </html>
